@@ -1,12 +1,20 @@
 
 CLANG = clang
+OPT = 0
+
+VM_CFILES = paka/minivm/vm/vm.c paka/minivm/vm/state.c paka/minivm/vm/gc.c
+VM_OBJS = $(VM_CFILES:%.c=%.o)
+
+OS_CFILES = kernel.c io.c mem.c math.c
+OS_OBJS = $(OS_CFILES:%.c=%.o)
+
+OBJS = $(OS_OBJS) $(VM_OBJS)
+INCLUDE = -Istivale -Ipaka/minivm
 
 all: tmp/os49.iso
 
 run: tmp/os49.iso
-	qemu-system-x86_64 -hda tmp/os49.iso
-
-BINTHING ?= limine-eltorito-efi.bin
+	qemu-system-x86_64 $(QFLAGS) -cdrom tmp/os49.iso
 
 tmp/os49.iso: tmp/os49.bin
 	mkdir -p tmp/iso
@@ -21,15 +29,20 @@ tmp/os49.iso: tmp/os49.bin
 			-no-emul-boot -boot-load-size 4 -boot-info-table \
 			--efi-boot limine-eltorito-efi.bin \
 			-efi-boot-part --efi-boot-image --protective-msdos-label \
-			./isoroot -o tmp/os49.iso
+			tmp/iso -o tmp/os49.iso
 	./limine/limine-install-linux-x86_64 tmp/os49.iso
 
-tmp/os49.bin: kernel.c
+tmp/os49.bin: $(OBJS)
 	mkdir -p tmp
-	$(CLANG) -g3 -c kernel.c -o tmp/kernel.o -std=gnu11 -ffreestanding -O2 -fPIC 
-	$(CLANG) -g3 -T linker.ld -o tmp/os49.bin -ffreestanding -O2 -nostdlib tmp/kernel.o -lgcc
+	$(CLANG) -g3 -T linker.ld -o tmp/os49.bin -ffreestanding -O$(OPT) -nostdlib $(OBJS) -lgcc
+
+$(VM_OBJS): $(@:%.o=%.c)
+	$(CLANG) -g3 -c $(@:%.o=%.c) -o $@ -std=gnu11 -ffreestanding -O$(OPT) -fPIC -fno-builtin $(INCLUDE) $(CFLAGS) $(VM_CFLAGS)
+
+$(OS_OBJS): $(@:%.o=%.c)
+	$(CLANG) -g3 -c $(@:%.o=%.c) -o $@ -std=gnu11 -ffreestanding -O$(OPT) -fPIC -fno-builtin $(INCLUDE) $(CFLAGS) $(OS_CFLAGS)
 
 .dummy:
 
 clean:
-	rm -fr tmp
+	rm -fr tmp $(OBJS)

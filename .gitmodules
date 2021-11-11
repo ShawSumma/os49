@@ -6,3 +6,7 @@
 	path = limine
 	url = https://github.com/limine-bootloader/limine
 	branch = latest-binary
+
+[submodule "paka"]
+	path = paka
+	url = https://github.com/shawsumma/paka
