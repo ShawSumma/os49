@@ -52,15 +52,15 @@ int putchar(int intc) {
     //     c = '\r';
     // }
     term_write(&c, 1);
-    for (size_t i = 0; i < 5*1000*1000;i++) {}
+    // for (size_t i = 0; i < 5*1000*1000;i++) {}
     return 0;
 }
 
-int newline(void) {
+void newline(void) {
     term_write("\n", 1);
 }
 
-#define FILE_PATH "paka/bins/boot.bc"
+#define FILE_PATH "paka/bin/stage3"
 
 extern uint8_t os_first_file[]; 
 
@@ -87,9 +87,6 @@ void os_start_fpu(void) {
 
 void _start(struct stivale2_struct *stivale2_struct) {
     os_start_fpu();
-    double dubv = numv;
-
-    while (1) {}
 
     struct stivale2_struct_tag_terminal *term_str_tag;
     term_str_tag = stivale2_get_tag(stivale2_struct, STIVALE2_STRUCT_TAG_TERMINAL_ID);
@@ -104,7 +101,7 @@ void _start(struct stivale2_struct *stivale2_struct) {
  
     void *ops = &os_first_file[1];
 
-    const char *args[] = {"-e" "putchar(10)"};
+    const char *args[] = {"-e", " println(\"Hello, World!\") "};
 
     vm_state_t *state = vm_state_new(sizeof(args) / sizeof(args[0]), args);
     vm_run(state, ops);

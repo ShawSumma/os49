@@ -7,7 +7,7 @@ size_t os_head = 0;
 size_t defcon = 10;
 
 int putchar(int c);
-int newline(void);
+void newline(void);
 
 void os_putn(size_t n);
 void os_putx(size_t n);
@@ -17,8 +17,6 @@ void *malloc(size_t size) {
     uint8_t *ret = &os_mem[os_head]; 
     *(size_t *)ret = size; 
     os_head += size + sizeof(size_t);
-    // os_putn(os_head);
-    // putchar('\r');
     // if (os_head > (1 << (26 - defcon)))
     // {
     //     putchar('d');

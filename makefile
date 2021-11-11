@@ -11,6 +11,8 @@ OS_OBJS = $(OS_CFILES:%.c=%.o)
 OBJS = $(OS_OBJS) $(VM_OBJS)
 INCLUDE = -Istivale -Ipaka/minivm
 
+VM_CFLAGS = -DVM_OS
+
 all: tmp/os49.iso
 
 run: tmp/os49.iso

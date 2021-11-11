@@ -6,6 +6,7 @@
 struct FILE;
 typedef struct FILE FILE;
 
+#if !defined(OS_FOPEN)
 FILE *fopen(const char *src, const char *name)
 {
     return (FILE *)0;
@@ -25,6 +26,7 @@ size_t fwrite(const void *ptr, size_t size, size_t nmemb, FILE *stream)
 {
     return 0;
 }
+#endif
 
 int putchar(int chr);
 
@@ -48,4 +50,11 @@ void os_putx(size_t n) {
         os_putn(n / 0x10);
     }
     os_putx1(n % 0x10);
+}
+
+void os_puts(const char *src) {
+    while (*src != '\0') {
+        putchar(*(src++));
+    }
+    putchar('\n');
 }
