@@ -13,6 +13,8 @@ INCLUDE = -Istivale -Ipaka/minivm
 
 VM_CFLAGS = -DVM_OS
 
+QFLAGS = -nographic -serial mon:stdio
+
 all: tmp/os49.iso
 
 run: tmp/os49.iso

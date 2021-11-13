@@ -4,45 +4,21 @@
 void *os_mem_base;
 uint8_t os_mem[1 << 26];
 size_t os_head = 0;
-size_t defcon = 10;
 
-int putchar(int c);
 void newline(void);
 
 void os_putn(size_t n);
 void os_putx(size_t n);
+
+void mreset(void) {
+    os_head = 0;
+}
 
 void *malloc(size_t size) {
     os_mem_base = &os_mem[0];
     uint8_t *ret = &os_mem[os_head]; 
     *(size_t *)ret = size; 
     os_head += size + sizeof(size_t);
-    // if (os_head > (1 << (26 - defcon)))
-    // {
-    //     putchar('d');
-    //     putchar('e');
-    //     putchar('f');
-    //     putchar('c');
-    //     putchar('o');
-    //     putchar('n');
-    //     putchar(':');
-    //     putchar(' ');
-    //     os_putn(defcon);
-    //     newline();
-    //     defcon -= 1;
-    //     for (int i = 0; i < 100*1000*1000;i++){}
-    // }
-    // if (defcon == 0)
-    // {
-    //     putchar('n');
-    //     putchar('u');
-    //     putchar('k');
-    //     putchar('e');
-    //     putchar('!');
-    //     while (1) {
-    //         defcon = 1 - defcon;
-    //     }
-    // }
     for (uint8_t *cptr = ret + sizeof(size_t); cptr < ret + size + sizeof(size_t); cptr++)
     {
         *cptr = 0;

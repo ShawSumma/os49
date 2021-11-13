@@ -52,9 +52,14 @@ void os_putx(size_t n) {
     os_putx1(n % 0x10);
 }
 
-void os_puts(const char *src) {
+void os_put(const char *src) {
     while (*src != '\0') {
         putchar(*(src++));
     }
+}
+
+
+void os_puts(const char *src) {
+    os_put(src);
     putchar('\n');
 }
