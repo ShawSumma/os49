@@ -1,21 +1,24 @@
 #include <stdint.h>
 #include <stddef.h>
 
+#define OS_MEM_MAX (1 << 24)
+
 void *os_mem_base;
-uint8_t os_mem[1 << 26];
+uint8_t os_mem[OS_MEM_MAX];
 size_t os_head = 0;
+size_t os_mem_stat_max = 0;
 
-void newline(void);
-
+void os_put(const char *src);
+void os_puts(const char *src);
 void os_putn(size_t n);
 void os_putx(size_t n);
 
 void mreset(void) {
+    os_mem_base = &os_mem[0];
     os_head = 0;
 }
 
 void *malloc(size_t size) {
-    os_mem_base = &os_mem[0];
     uint8_t *ret = &os_mem[os_head]; 
     *(size_t *)ret = size; 
     os_head += size + sizeof(size_t);

@@ -45,14 +45,21 @@ void *stivale2_get_tag(struct stivale2_struct *stivale2_struct, uint64_t id) {
     }
 }
 
-#define FILE_PATH "paka/bin/stage3"
+#if defined(OS_LANG_PAKA)
+#define argv_run(src) {"-e", src}
+#elif defined(OS_LANG_MLATU)
+#define argv_run(src) {src}
+#else
+#define argv_run(src) {}
+#error "no OS_LANG_PAKA or OS_LANG_MLATU defined"
+#endif
 
 extern uint8_t os_first_file[]; 
 
 __asm__(
  ".section \".rodata\", \"a\", @progbits\n"
  "os_first_file:\n"
- ".incbin \""FILE_PATH"\"\n"
+ ".incbin \"tmp/lang.bc\"\n"
  ".previous\n"
 );
 
@@ -137,10 +144,12 @@ void os_start_fpu(void) {
 }
 
 void os_put(const char *src);
+void os_putn(size_t n);
 void mreset(void);
 
 void _start(struct stivale2_struct *stivale2_struct) {
     os_start_fpu();
+    init_serial();
 
     struct stivale2_struct_tag_terminal *term_str_tag;
     term_str_tag = stivale2_get_tag(stivale2_struct, STIVALE2_STRUCT_TAG_TERMINAL_ID);
@@ -157,24 +166,32 @@ void _start(struct stivale2_struct *stivale2_struct) {
 
     os_put("Welcome to os49!\n");
 
+    size_t n = 0;
+
     while(true) {
         mreset();
-        os_put(">>> ");
+        os_put("(");
+        os_putn(++n);
+        os_put(")> ");
         size_t i = 0;
-        char buf[256];
+        char buf[1 << 10] = {0};
         while (true) {
             char chr = os_serial_read();
             if (chr == '\r') {
                 chr = '\n';
             }
+            if (chr < '!' || chr > '~') {
+                if (chr != '\n' && chr != ' ') {
+                    continue;
+                }
+            }
             putchar(chr);
-            buf[i++] = chr;
             if (chr == '\n') {
                 break;
             }
+            buf[i++] = chr;
         }
-        buf[i] = '\0';
-        const char *args[] = {"-e", buf};
+        const char *args[] = argv_run(buf);
         void *ops = &os_first_file[1];
 
         vm_state_t *state = vm_state_new(sizeof(args) / sizeof(args[0]), args);

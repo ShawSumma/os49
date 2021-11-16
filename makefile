@@ -1,19 +1,42 @@
 
-CLANG = clang
-OPT = 0
+default: all
+
+CLANG ?= clang
+GIT ?= git
+OPT ?= 0
 
 VM_CFILES = paka/minivm/vm/vm.c paka/minivm/vm/state.c paka/minivm/vm/gc.c
 VM_OBJS = $(VM_CFILES:%.c=%.o)
 
-OS_CFILES = kernel.c io.c mem.c math.c
+OS_CFILES = src/kernel.c src/io.c src/mem.c src/math.c
 OS_OBJS = $(OS_CFILES:%.c=%.o)
 
 OBJS = $(OS_OBJS) $(VM_OBJS)
 INCLUDE = -Istivale -Ipaka/minivm
 
+LANG = PAKA
+
+OS_CFLAGS = -DOS_LANG_$(LANG)
 VM_CFLAGS = -DVM_OS
 
 QFLAGS = -nographic -serial mon:stdio
+
+ifeq ($(LANG),paka)
+GIT_REPO ?= https://github.com/shawsumma/paka.git
+tmp/lang.bc: tmp/lang
+	$(MAKE) -C tmp/lang 
+	cp tmp/lang/bin/stage3 $@ 
+else
+GIT_REPO ?= https://github.com/shawsumma/litter.git
+tmp/lang.bc: tmp/lang
+	$(MAKE) -C tmp/lang/paka
+	./tmp/lang/paka/bin/minivm ./tmp/lang/paka/bin/stage3  ./tmp/lang/src/mlatu.paka -o $@
+endif
+
+tmp/lang: 
+	mkdir -p tmp
+	rm -rf tmp/lang
+	$(GIT) clone $(GIT_REPO) --recursive --depth 1 "tmp/lang" || true
 
 all: tmp/os49.iso
 
@@ -43,7 +66,7 @@ tmp/os49.bin: $(OBJS)
 $(VM_OBJS): $(@:%.o=%.c)
 	$(CLANG) -g3 -c $(@:%.o=%.c) -o $@ -std=gnu11 -ffreestanding -O$(OPT) -fPIC -fno-builtin $(INCLUDE) $(CFLAGS) $(VM_CFLAGS)
 
-$(OS_OBJS): $(@:%.o=%.c)
+$(OS_OBJS): $(@:%.o=%.c) tmp/lang.bc
 	$(CLANG) -g3 -c $(@:%.o=%.c) -o $@ -std=gnu11 -ffreestanding -O$(OPT) -fPIC -fno-builtin $(INCLUDE) $(CFLAGS) $(OS_CFLAGS)
 
 .dummy:
