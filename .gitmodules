@@ -6,3 +6,8 @@
 	path = limine
 	url = https://github.com/limine-bootloader/limine
 	branch = latest-binary
+
+[submodule "minivm"]
+	path = minivm
+	url = https://github.com/shawsumma/minivm
+	branch = main

@@ -5,14 +5,14 @@ CLANG ?= clang
 GIT ?= git
 OPT ?= 0
 
-VM_CFILES = paka/minivm/vm/vm.c paka/minivm/vm/state.c paka/minivm/vm/gc.c
+VM_CFILES = minivm/vm/vm.c minivm/vm/state.c minivm/vm/gc.c
 VM_OBJS = $(VM_CFILES:%.c=%.o)
 
 OS_CFILES = src/kernel.c src/io.c src/mem.c src/math.c
 OS_OBJS = $(OS_CFILES:%.c=%.o)
 
 OBJS = $(OS_OBJS) $(VM_OBJS)
-INCLUDE = -Istivale -Ipaka/minivm
+INCLUDE = -Istivale -Iminivm
 
 LANG = PAKA
 
