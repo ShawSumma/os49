@@ -4,7 +4,7 @@
 #include <stivale2.h>
 #include <vm/state.h>
 
-static uint8_t stack[1 << 16];
+static uint8_t stack[1 << 20];
  
 static struct stivale2_header_tag_terminal terminal_hdr_tag = {
     .tag = {

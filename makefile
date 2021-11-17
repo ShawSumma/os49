@@ -19,9 +19,7 @@ LANG = PAKA
 OS_CFLAGS = -DOS_LANG_$(LANG)
 VM_CFLAGS = -DVM_OS
 
-QFLAGS = -nographic -serial mon:stdio
-
-ifeq ($(LANG),paka)
+ifeq ($(LANG),PAKA)
 GIT_REPO ?= https://github.com/shawsumma/paka.git
 tmp/lang.bc: tmp/lang
 	$(MAKE) -C tmp/lang 
@@ -41,7 +39,13 @@ tmp/lang:
 all: tmp/os49.iso
 
 run: tmp/os49.iso
-	qemu-system-x86_64 $(QFLAGS) -cdrom tmp/os49.iso
+	qemu-system-x86_64 -nographic -serial mon:stdio $(QFLAGS) -cdrom tmp/os49.iso
+
+debug: tmp/os49.iso
+	qemu-system-x86_64 -nographic -serial mon:stdio $(QFLAGS) -cdrom tmp/os49.iso -s -S -no-reboot -d int
+
+connect: tmp/os49.iso
+	lldb  --one-line "file tmp/os49.bin" --one-line "gdb-remote 1234"
 
 tmp/os49.iso: tmp/os49.bin
 	mkdir -p tmp/iso
